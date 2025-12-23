@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spam Message Predictor</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f5f7fa;
+        }
+        .card {
+            border-radius: 12px;
+        }
+        #resultBox {
+            display: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow p-4">
+                <h4 class="text-center mb-3">Spam Message Predictor</h4>
+
+                <!-- Input Message -->
+                <div class="mb-3">
+                    <label class="form-label">Input Message</label>
+                    <textarea class="form-control" id="message" rows="4"
+                              placeholder="Enter your message here..."></textarea>
+                </div>
+
+                <!-- Predict Button -->
+                <div class="d-grid">
+                    <button class="btn btn-primary" onclick="predictSpam()">Predict</button>
+                </div>
+
+                <!-- Result Box -->
+                <div id="resultBox" class="alert mt-4 text-center"></div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- JS -->
+<script>
+    function predictSpam() {
+        let msg = document.getElementById("message").value.trim();
+        let resultBox = document.getElementById("resultBox");
+        console.log("Prediction: ",msg);
+
+        if (msg === "") {
+            resultBox.style.display = "block";
+            resultBox.className = "alert alert-warning mt-4 text-center";
+            resultBox.innerText = "Please enter a message!";
+            return;
+        }
+        fetch("/predict",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({message:msg})
+
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Prediction: ",data);
+            resultBox.style.display = "block";
+            resultBox.className = "alert alert-success mt-4 text-center";
+            resultBox.innerText = data.prediction;
+            console.log("Prediction: ",data.prediction);
+        })
+        .catch(error => {
+            console.log("Error: ",error);
+            resultBox.style.display = "block";
+            resultBox.className = "alert alert-danger mt-4 text-center";
+            resultBox.innerText = "Error: " + error;
+        })
+     
+
+     
+
+        // Dummy prediction logic (replace with real ML later)
+     
+        let isSpam = false;
+        if (data.prediction === "Spam") {
+            isSpam = true;
+        }
+
+        resultBox.style.display = "block";
+
+        if (isSpam) {
+            resultBox.className = "alert alert-danger mt-4 text-center";
+            resultBox.innerText = "🚨 Spam Message";
+        } else {
+            resultBox.className = "alert alert-success mt-4 text-center";
+            resultBox.innerText = "✅ Not Spam Message";
+        }
+    }
+</script>
+
+</body>
+</html>
